@@ -69,6 +69,9 @@ class App():
         self.menu.add_cascade(label="Sobre", font=(
             'Arial', FONTE_2), menu=self.menu_ajuda)
 
+        self.menu.add_command(label="Modo anotação (F1)", font=(
+            'Arial', FONTE_2), command=lambda: self.ativar_anotacoes(None))
+
         self.menu.add_separator()
 
         self.master.config(menu=self.menu)
@@ -297,7 +300,7 @@ class App():
                     '#FA9F85')
         else:
             self.selecao.label_valor.configure(fg='black')
-            self.selecao.alterar_fundo(bg='#B0DBEE')
+            self.selecao.alterar_fundo('#B0DBEE')
 
     def restaurar_botoes_invalidos(self, valor, quad, linha, coluna):
 
