@@ -1,14 +1,14 @@
 import tkinter as tk
 from tkinter import ttk
 from tkinter.constants import *
-from tabuleiro import Tabuleiro
+from classes.tabuleiro import Tabuleiro
 from pkg_resources import resource_filename
 import copy
-from quadrante import BlockedException
+from classes.quadrante import BlockedException
 import time
 from queue import Queue
 from threading import Thread
-from popup_numero import Popup_numeros
+from widgets.popup_numero import Popup_numeros
 
 # FUNDO_1 = "#DED9C3"
 FUNDO_1 = "white"
