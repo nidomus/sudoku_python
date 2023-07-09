@@ -20,35 +20,6 @@ FONTE_1 = 30
 FONTE_2 = 20
 
 
-class T_resolve(Thread):
-    def __init__(self, tabuleiro, queue):
-        Thread.__init__(self)
-        self.tabuleiro = tabuleiro
-        self.queue = queue
-        # self.tabuleiro_copia = copy.deepcopy(tabuleiro)
-
-    def run(self):
-        global flag
-        global t
-        flag = False
-        quadrantes_copia = copy.deepcopy(self.tabuleiro.quadrantes)
-        try:
-            while flag == False:
-                flag = True
-                self.tabuleiro.quadrantes = copy.deepcopy(quadrantes_copia)
-                for i in range(len(self.tabuleiro.quadrantes)):
-                    try:
-                        self.tabuleiro.quadrantes[i].resolver_quadrante()
-                    except BlockedException:
-                        i -= 2
-                        print(i)
-
-        finally:
-            self.queue.put(self.tabuleiro)
-            self.queue.task_done()
-            print(self.name)
-
-
 class App():
     def __init__(self, master: tk.Tk) -> None:
 
@@ -70,7 +41,33 @@ class App():
 
         self.renderizar_tabuleiro()
 
-        print(len(self.quadrantes_botoes))
+        self.menu = tk.Menu(self.master, font=("", FONTE_2))
+
+        self.menu_jogo = tk.Menu(self.menu, tearoff=0)
+
+        self.menu_jogo.add_command(
+            label="Novo Tabuleiro", font=("", 12), command=self.novo_jogo)
+
+        self.menu_jogo.add_command(
+            label="Reiniciar", font=("", 12), command=self.reiniciar_jogo)
+
+        self.menu_jogo.add_command(
+            label="Resolver (Beta)", font=("", 12), command=self.resolver_jogo)
+
+        self.menu_ajuda = tk.Menu(self.menu, tearoff=0)
+
+        self.menu.add_cascade(label="Tabuleiro", font=(
+            'Arial', FONTE_2), menu=self.menu_jogo)
+
+        self.menu.add_cascade(label="Ajuda", font=(
+            'Arial', FONTE_2), menu=self.menu_ajuda)
+
+        self.menu.add_cascade(label="Sobre", font=(
+            'Arial', FONTE_2), menu=self.menu_ajuda)
+
+        self.menu.add_separator()
+
+        self.master.config(menu=self.menu)
 
     def renderizar_tabuleiro(self):
         self.container = tk.Frame(self.master, background=COR_1)
@@ -85,21 +82,6 @@ class App():
         self.frame_3 = tk.Frame(self.container, background=COR_1)
         self.frame_3.pack(side=TOP, pady=(2, 6), padx=2, expand=YES)
         # ttk.Sep, background='black'arator(master=self.master,orient=HORIZONTAL).pack(side = TOP,fill=X, pady=2, padx=10)
-
-        self.frame_botoes = tk.Frame(self.container, background=COR_1)
-        self.frame_botoes.pack(side='top', pady=(20, 0), expand=YES, fill=X)
-
-        self.botao_reiniciar = tk.Button(self.frame_botoes, text='Reiniciar', font=(
-            'Arial', FONTE_2), fg=COR_1, command=self.reiniciar_jogo)
-        self.botao_reiniciar.pack(side=LEFT, padx=5, pady=5)
-
-        self.botao_novo_jogo = tk.Button(self.frame_botoes, text='Novo Jogo', font=(
-            'Arial', FONTE_2), fg=COR_1, command=self.novo_jogo)
-        self.botao_novo_jogo.pack(side=RIGHT, padx=5, pady=5)
-
-        self.botao_resolver = tk.Button(self.frame_botoes, text='Resolver', font=(
-            'Arial', FONTE_2), fg=COR_1, command=self.resolver_jogo)
-        self.botao_resolver.pack(side=RIGHT, padx=5, pady=5)
 
         for q in range(3):
             matriz = self.tabuleiro.quadrantes[q].matriz
@@ -387,7 +369,7 @@ root.resizable(0, 0)
 # root.geometry('720x720')
 root.eval('tk::PlaceWindow . center')
 
-icone = resource_filename(__name__, 'icon.ico')
+icone = resource_filename(__name__, './assets/icon.ico')
 root.iconbitmap(icone)
 root.title('Sudoku!')
 root.mainloop()

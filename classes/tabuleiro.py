@@ -84,13 +84,13 @@ class Tabuleiro():
     def gerar_jogo(self):
 
         espacos_vazios = 0
-        while espacos_vazios <= 55:
+        while espacos_vazios <= 46:
 
             quad = randint(0, 8)
             i = randint(0, 2)
             j = randint(0, 2)
             # and (self.quadrantes[quad].quantidade_valor(0) < 9)
-            if self.quadrantes[quad].matriz[i][j] != 0:
+            if self.quadrantes[quad].matriz[i][j] != 0 and (self.quadrantes[quad].quantidade_valor(0) < 9):
                 self.quadrantes[quad].matriz[i][j] = 0
                 espacos_vazios += 1
 
