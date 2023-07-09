@@ -10,6 +10,8 @@ from queue import Queue
 from threading import Thread
 from widgets.popup_numero import Popup_numeros
 
+from widgets.celula import Celula
+
 # FUNDO_1 = "#DED9C3"
 FUNDO_1 = "white"
 
@@ -26,12 +28,14 @@ class App():
         self.master = master
 
         self.master.bind('<Key>', self.alterar_valor)
-        self.selecao = None
+        self.master.bind('<F1>', self.ativar_anotacoes)
+        self.selecao: Celula = None
         self.quad_selecao = None
         self.coord_selecao = None
         self.quadrantes_botoes = []
         self.erros = 0
         self.espacos_preenchidos = 0
+        self.modo_anotacao = False
 
         self.tabuleiro = Tabuleiro()
         self.tabuleiro.gerar_jogo()
@@ -70,7 +74,8 @@ class App():
         self.master.config(menu=self.menu)
 
     def renderizar_tabuleiro(self):
-        self.container = tk.Frame(self.master, background=COR_1)
+        self.container = tk.Frame(
+            self.master, background=COR_1, cursor='hand2')
         self.container.pack(fill=BOTH, expand=YES)
         # ttk.Separator(master=self.master,orient=HORIZONTAL).pack(side = TOP,fill=X, pady=(5,0), padx=10)
         self.frame_1 = tk.Frame(self.container, background=COR_1)
@@ -95,18 +100,18 @@ class App():
                 for j in range(3):
                     valor = matriz[i][j]
                     if valor == 0:
-                        btn = tk.Button(
-                            frame_btns, text='  ', background='white', width=3, font=('Arial', FONTE_1))
+                        btn: Celula = Celula(
+                            frame_btns)
                         botoes.append(btn)
-                        btn.bind('<Button-1>', lambda event, btn=btn, coord=(i, j),
-                                 quad=frame_quad: self.selecionado(btn, coord, quad))
-                        btn.bind('<Button-3>', lambda event, btn=btn, coord=(i, j), quad=frame_quad: Popup_numeros(
+                        btn.bind_all('<Button-1>', lambda event, btn=btn, coord=(i, j),
+                                     quad=frame_quad: self.selecionado(btn, coord, quad))
+                        btn.bind_all('<Button-3>', lambda event, btn=btn, coord=(i, j), quad=frame_quad: Popup_numeros(
                             root=self.master, app=self, btn=btn, coord=coord, quad=quad))
-                        btn.bind('<Button-2>', lambda event, btn=btn, coord=(i, j),
-                                 quad=frame_quad: self.limpar_valor(event, btn, coord, quad))
+                        btn.bind_all('<Button-2>', lambda event, btn=btn, coord=(i, j),
+                                     quad=frame_quad: self.limpar_valor(event, btn, coord, quad))
                     else:
-                        btn = tk.Button(frame_btns, text=matriz[i][j], state='disabled', bg=FUNDO_1,
-                                        width=3, disabledforeground=COR_1, font=('Arial', FONTE_1))
+                        btn: Celula = Celula(
+                            master=frame_btns, valor=matriz[i][j], cor_valor=COR_1)
                         botoes.append(btn)
                     btn.pack(side=LEFT)
                 matriz_botoes.append(botoes)
@@ -126,22 +131,20 @@ class App():
                 for j in range(3):
                     valor = matriz[i][j]
                     if valor == 0:
-                        btn = tk.Button(
-                            frame_btns, text='  ', background='white', width=3, font=('Arial', FONTE_1))
+                        btn: Celula = Celula(
+                            frame_btns)
                         botoes.append(btn)
-                        btn.bind('<Button-1>', lambda event, btn=btn, coord=(i, j),
-                                 quad=frame_quad: self.selecionado(btn, coord, quad))
-                        btn.bind('<Button-3>', lambda event, btn=btn, coord=(i, j), quad=frame_quad: Popup_numeros(
+                        btn.bind_all('<Button-1>', lambda event, btn=btn, coord=(i, j),
+                                     quad=frame_quad: self.selecionado(btn, coord, quad))
+                        btn.bind_all('<Button-3>', lambda event, btn=btn, coord=(i, j), quad=frame_quad: Popup_numeros(
                             root=self.master, app=self, btn=btn, coord=coord, quad=quad))
-                        btn.bind('<Button-2>', lambda event, btn=btn, coord=(i, j),
-                                 quad=frame_quad: self.limpar_valor(event, btn, coord, quad))
-
+                        btn.bind_all('<Button-2>', lambda event, btn=btn, coord=(i, j),
+                                     quad=frame_quad: self.limpar_valor(event, btn, coord, quad))
                     else:
-                        btn = tk.Button(frame_btns, text=matriz[i][j], state='disabled', width=3,
-                                        bg=FUNDO_1, disabledforeground=COR_1, font=('Arial', FONTE_1))
+                        btn: Celula = Celula(
+                            master=frame_btns, valor=matriz[i][j], cor_valor=COR_1)
                         botoes.append(btn)
                     btn.pack(side=LEFT)
-
                 matriz_botoes.append(botoes)
 
             self.quadrantes_botoes.append(matriz_botoes)
@@ -159,95 +162,124 @@ class App():
                 for j in range(3):
                     valor = matriz[i][j]
                     if valor == 0:
-                        btn = tk.Button(
-                            frame_btns, text='  ', background='white', width=3, font=('Arial', FONTE_1))
+                        btn: Celula = Celula(
+                            frame_btns)
                         botoes.append(btn)
-                        btn.bind('<Button-1>', lambda event, btn=btn, coord=(i, j),
-                                 quad=frame_quad: self.selecionado(btn, coord, quad))
-                        btn.bind('<Button-3>', lambda event, btn=btn, coord=(i, j), quad=frame_quad: Popup_numeros(
+                        btn.bind_all('<Button-1>', lambda event, btn=btn, coord=(i, j),
+                                     quad=frame_quad: self.selecionado(btn, coord, quad))
+                        btn.bind_all('<Button-3>', lambda event, btn=btn, coord=(i, j), quad=frame_quad: Popup_numeros(
                             root=self.master, app=self, btn=btn, coord=coord, quad=quad))
-                        btn.bind('<Button-2>', lambda event, btn=btn, coord=(i, j),
-                                 quad=frame_quad: self.limpar_valor(event, btn, coord, quad))
-
+                        btn.bind_all('<Button-2>', lambda event, btn=btn, coord=(i, j),
+                                     quad=frame_quad: self.limpar_valor(event, btn, coord, quad))
                     else:
-                        btn = tk.Button(frame_btns, text=matriz[i][j], state='disabled', bg=FUNDO_1,
-                                        width=3, disabledforeground=COR_1, font=('Arial', FONTE_1))
+                        btn: Celula = Celula(
+                            master=frame_btns, valor=matriz[i][j], cor_valor=COR_1)
                         botoes.append(btn)
-
-                    btn.pack(side=LEFT, fill=BOTH)
+                    btn.pack(side=LEFT)
 
                 matriz_botoes.append(botoes)
 
             self.quadrantes_botoes.append(matriz_botoes)
 
+    def ativar_anotacoes(self, event):
+        self.modo_anotacao = not self.modo_anotacao
+
+        if self.modo_anotacao:
+            self.container.config(cursor='pencil')
+        else:
+            self.container.config(cursor='hand2')
+
     def selecionado(self, btn, coord, quad):
         if self.selecao is not None:
-            if self.selecao['text'] != '  ':
-                self.restaurar_botoes_invalidos(int(self.selecao['text']), int(
+            if self.selecao.label_valor['text'] != '':
+                self.restaurar_botoes_invalidos(int(self.selecao.label_valor['text']), int(
                     self.quad_selecao['class']), int(self.coord_selecao[0]), int(self.coord_selecao[1]))
-            self.selecao.configure(bg='white')
+
+            self.selecao.alterar_fundo('white')
 
         self.selecao = btn
         self.quad_selecao = quad
         self.coord_selecao = coord
 
-        if self.selecao['text'] != '  ':
-            self.alterar_botoes_invalidos(int(self.selecao['text']))
+        if self.selecao.label_valor['text'] != '':
+            self.alterar_botoes_invalidos(
+                int(self.selecao.label_valor['text']))
 
-        if self.selecao['foreground'] != 'red':
-            self.selecao.configure(bg='#B0DBEE')
+        if self.selecao.label_valor['foreground'] != 'red':
+            self.selecao.alterar_fundo('#B0DBEE')
         else:
-            self.selecao.configure(bg='#FA9F85')
+            self.selecao.alterar_fundo('#FA9F85')
 
     def alterar_valor(self, event):
-        quad = int(self.quad_selecao['class'])
-        linha, coluna = self.coord_selecao
-        if event.char in ['1', '2', '3', '4', '5', '6', '7', '8', '9']:
 
-            self.tabuleiro.quadrantes[quad].matriz[linha][coluna] = int(
-                event.char)
-            if self.selecao['text'] != '  ':
-                print(self.selecao['text'])
+        if not self.modo_anotacao:
+            quad = int(self.quad_selecao['class'])
+            linha, coluna = self.coord_selecao
+            if event.char in ['1', '2', '3', '4', '5', '6', '7', '8', '9']:
+
+                self.tabuleiro.quadrantes[quad].matriz[linha][coluna] = int(
+                    event.char)
+                if self.selecao.label_valor['text'] != '':
+                    # print(self.selecao['text']).label_valor
+                    self.restaurar_botoes_invalidos(
+                        int(self.selecao.label_valor['text']), quad, linha, coluna)
+
+                self.alterar_botoes_invalidos(int(event.char))
+
+                self.selecao.label_valor.configure(text=event.char,)
+                self.espacos_preenchidos += 1
+                print(self.espacos_preenchidos)
+
+            if event.keycode == 8:
+                valor = int(self.selecao.label_valor['text'])
+                self.selecao.label_valor.configure(
+                    text='', fg='black')
+                self.selecao.alterar_fundo('#B0DBEE')
+                self.tabuleiro.quadrantes[quad].matriz[linha][coluna] = 0
+                self.restaurar_botoes_invalidos(valor, quad, linha, coluna)
+
+        else:
+            if event.keycode == 8:
+                self.selecao.limpar_anotacoes()
+            else:
+                self.selecao.fazer_anotacao(int(event.char))
+
+    def alterar_valor_popup(self, event, valor):
+
+        if not self.modo_anotacao:
+
+            quad = int(self.quad_selecao['class'])
+            linha, coluna = self.coord_selecao
+
+            self.tabuleiro.quadrantes[quad].matriz[linha][coluna] = valor
+            if self.selecao.label_valor['text'] != '':
+                print(self.selecao.label_valor['text'])
                 self.restaurar_botoes_invalidos(
-                    int(self.selecao['text']), quad, linha, coluna)
+                    int(self.selecao.label_valor['text']), quad, linha, coluna)
 
-            self.alterar_botoes_invalidos(int(event.char))
+            self.alterar_botoes_invalidos(valor)
+            self.selecao.label_valor.configure(text=valor,)
 
-            self.selecao.configure(text=event.char,)
             self.espacos_preenchidos += 1
             print(self.espacos_preenchidos)
 
-        if event.keycode == 8:
-            valor = int(self.selecao['text'])
-            self.selecao.configure(text='  ', bg='#B0DBEE', fg='black')
-            self.tabuleiro.quadrantes[quad].matriz[linha][coluna] = 0
-            self.restaurar_botoes_invalidos(valor, quad, linha, coluna)
-
-    def alterar_valor_popup(self, event, valor):
-        quad = int(self.quad_selecao['class'])
-        linha, coluna = self.coord_selecao
-
-        self.tabuleiro.quadrantes[quad].matriz[linha][coluna] = valor
-        if self.selecao['text'] != '  ':
-            print(self.selecao['text'])
-            self.restaurar_botoes_invalidos(
-                int(self.selecao['text']), quad, linha, coluna)
-
-        self.alterar_botoes_invalidos(valor)
-        self.selecao.configure(text=valor,)
-
-        self.espacos_preenchidos += 1
-        print(self.espacos_preenchidos)
+        else:
+            self.selecao.fazer_anotacao(int(valor))
 
     def limpar_valor(self, event, btn, coord, quad):
 
-        linha, coluna = coord
-        valor = int(btn['text'])
-        btn.configure(text='  ', fg='black')
-        self.tabuleiro.quadrantes[int(quad['class'])].matriz[linha][coluna] = 0
-        self.restaurar_botoes_invalidos(
-            valor, int(quad['class']), linha, coluna)
-        self.selecionado(btn, coord, quad)
+        if self.modo_anotacao:
+            btn.limpar_anotacoes()
+
+        else:
+            linha, coluna = coord
+            valor = int(btn.label_valor['text'])
+            btn.label_valor.configure(text='', fg='black')
+            self.tabuleiro.quadrantes[int(
+                quad['class'])].matriz[linha][coluna] = 0
+            self.restaurar_botoes_invalidos(
+                valor, int(quad['class']), linha, coluna)
+            self.selecionado(btn, coord, quad)
 
     def alterar_botoes_invalidos(self, valor):
         quad = int(self.quad_selecao['class'])
@@ -256,12 +288,16 @@ class App():
             quad, valor, linha, coluna)
         if len(posicoes_invalidas) > 0:
             self.erros += 1
-            self.selecao.configure(fg='red', bg='#FA9F85',)
+            self.selecao.alterar_fundo('#FA9F85',)
+            self.selecao.label_valor.configure(fg='red')
             for q, i, j in posicoes_invalidas:
-                self.quadrantes_botoes[q][i][j].configure(
-                    fg='red', disabledforeground='red', bg='#FA9F85')
+                self.quadrantes_botoes[q][i][j].label_valor.configure(
+                    fg='red', disabledforeground='red',)
+                self.quadrantes_botoes[q][i][j].alterar_fundo(
+                    '#FA9F85')
         else:
-            self.selecao.configure(fg='black', bg='#B0DBEE')
+            self.selecao.label_valor.configure(fg='black')
+            self.selecao.alterar_fundo(bg='#B0DBEE')
 
     def restaurar_botoes_invalidos(self, valor, quad, linha, coluna):
 
@@ -271,12 +307,13 @@ class App():
         for q, i, j in self.tabuleiro.encontrar_valores_invalidos(quad, valor, linha, coluna):
             botao = self.quadrantes_botoes[q][i][j]
             cor_de_fundo = 'white'
-            if botao['state'] == 'disabled':
+            if botao.label_valor['state'] == 'disabled':
                 cor_de_fundo = FUNDO_1
             else:
                 coords.append((q, i, j))
-            botao.configure(
-                fg='black', disabledforeground=COR_1, bg=cor_de_fundo)
+            botao.label_valor.configure(
+                fg=COR_1, disabledforeground=COR_1)
+            botao.alterar_fundo(cor_de_fundo)
 
         # Verifica se alguma casa continua inválida mesmo após apagar o botão principal
         for coord in coords:
@@ -286,7 +323,8 @@ class App():
 
             # Se sim, mantém o texto em vermelho
             if len(posicoes) > 0:
-                self.quadrantes_botoes[quadrante][i][j].configure(fg='red',)
+                self.quadrantes_botoes[quadrante][i][j].label_valor.configure(
+                    fg='red',)
 
     def resolver_jogo(self):
 

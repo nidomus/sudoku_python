@@ -90,7 +90,7 @@ class Tabuleiro():
             i = randint(0, 2)
             j = randint(0, 2)
             # and (self.quadrantes[quad].quantidade_valor(0) < 9)
-            if self.quadrantes[quad].matriz[i][j] != 0 and (self.quadrantes[quad].quantidade_valor(0) < 9):
+            if self.quadrantes[quad].matriz[i][j] != 0 and (self.quadrantes[quad].quantidade_valor(0) < 8):
                 self.quadrantes[quad].matriz[i][j] = 0
                 espacos_vazios += 1
 
